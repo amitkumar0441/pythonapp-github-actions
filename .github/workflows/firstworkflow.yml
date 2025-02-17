@@ -19,9 +19,14 @@ jobs:
       - name: Build the Docker image with date and time version
         run: |
           VERSION=$(date +'%Y%m%d-%H%M%S')  # Use current date and time as version
+          echo "Building Docker image with tag ${VERSION}"
           docker build -t amitkumar0441/simplepythonapp:${VERSION} .
-        
+
+      - name: List Docker images
+        run: docker images
+
       - name: Push to Docker Hub
         run: |
           VERSION=$(date +'%Y%m%d-%H%M%S')
+          echo "Pushing Docker image with tag ${VERSION}"
           docker push amitkumar0441/simplepythonapp:${VERSION}
