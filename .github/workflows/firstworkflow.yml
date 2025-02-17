@@ -27,6 +27,6 @@ jobs:
 
       - name: Push to Docker Hub
         run: |
-          VERSION=$(date +'%Y%m%d-%H%M%S')
+          VERSION=$(date +'%Y%m%d-%H%M%S')  # Ensure we use the same VERSION variable
           echo "Pushing Docker image with tag ${VERSION}"
           docker push amitkumar0441/simplepythonapp:${VERSION}
