@@ -1,0 +1,27 @@
+name: firstworkflow # Workflow name
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on version tags (e.g., v1.0.0)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Clone the repository
+
+      - name: Log in to Docker Hub using echo
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+      - name: Build the Docker image
+        run: |
+          IMAGE_TAG=${GITHUB_REF#refs/tags/}  # Extract version from Git tag
+          docker build -t amitkumar0441/simplepythonapp:${IMAGE_TAG} .
+
+      - name: Push to Docker Hub
+        run: |
+          IMAGE_TAG=${GITHUB_REF#refs/tags/}  # Extract version from Git tag
+          docker push amitkumar0441/simplepythonapp:${IMAGE_TAG}
