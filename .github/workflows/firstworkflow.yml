@@ -16,20 +16,42 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
 
-      - name: Generate the human-readable timestamp for versioning
-        id: version
+      - name: Read the current version
+        id: get_version
         run: |
-          VERSION=$(date +'%Y-%m-%d_%H-%M-%S')  # Human-readable format (e.g., 2025-02-17_10-15-30)
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Set the version as an environment variable
-          echo "Built with version ${VERSION}"
+          VERSION_FILE="version.txt"
+          if [ ! -f $VERSION_FILE ]; then
+            echo "1" > $VERSION_FILE  # If version.txt doesn't exist, initialize with version 1
+          fi
+          VERSION=$(cat $VERSION_FILE)
+          echo "Current version is $VERSION"
+          echo "::set-output name=version::$VERSION"  # Set the version as an output
+
+      - name: Increment the version
+        run: |
+          VERSION_FILE="version.txt"
+          VERSION=$(cat $VERSION_FILE)
+          NEW_VERSION=$((VERSION + 1))  # Increment version by 1
+          echo "New version is $NEW_VERSION"
+          echo $NEW_VERSION > $VERSION_FILE  # Save the new version to the file
+
+      - name: Commit updated version file
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add version.txt
+          git commit -m "Increment version to ${{ steps.get_version.outputs.version }}"
+          git push
 
       - name: Build the Docker image
         run: |
-          docker build -t amitkumar0441/simplepythonapp:${{ env.VERSION }} .
+          VERSION=${{ steps.get_version.outputs.version }}
+          docker build -t amitkumar0441/simplepythonapp:${VERSION} .
 
       - name: List Docker images
         run: docker images
 
       - name: Push to Docker Hub
         run: |
-          docker push amitkumar0441/simplepythonapp:${{ env.VERSION }}
+          VERSION=${{ steps.get_version.outputs.version }}
+          docker push amitkumar0441/simplepythonapp:${VERSION}
