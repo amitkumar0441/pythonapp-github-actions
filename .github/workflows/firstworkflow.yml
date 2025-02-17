@@ -1,0 +1,27 @@
+name: firstworkflow # Workflow name
+
+on:
+  push:
+    branches:
+      - 'main'  # Trigger on push to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # Clone the repository
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+      - name: Build the Docker image with date and time version
+        run: |
+          VERSION=$(date +'%Y%m%d-%H%M%S')  # Use current date and time as version
+          docker build -t amitkumar0441/simplepythonapp:${VERSION} .
+        
+      - name: Push to Docker Hub
+        run: |
+          VERSION=$(date +'%Y%m%d-%H%M%S')
+          docker push amitkumar0441/simplepythonapp:${VERSION}
