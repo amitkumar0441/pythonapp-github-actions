@@ -16,10 +16,10 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
 
-      - name: Generate the timestamp for versioning
+      - name: Generate the human-readable timestamp for versioning
         id: version
         run: |
-          VERSION=$(date +'%Y%m%d-%H%M%S')  # Generate a consistent timestamp for versioning
+          VERSION=$(date +'%Y-%m-%d_%H-%M-%S')  # Human-readable format (e.g., 2025-02-17_10-15-30)
           echo "VERSION=${VERSION}" >> $GITHUB_ENV  # Set the version as an environment variable
           echo "Built with version ${VERSION}"
 
